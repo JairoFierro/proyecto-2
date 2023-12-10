@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,19 +25,24 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import modelo.Atv;
+import modelo.BicicletaElectrica;
 import modelo.Carro;
 import modelo.Conductor;
 import modelo.InfoReserva;
 import modelo.Licencia;
+import modelo.Moto;
 import modelo.Seguro;
+import modelo.Vehiculo;
 
-public class InterfazCliente extends JFrame {
+public class InterfazCliente extends JFrame implements ActionListener {
 	private static SistemaDeReservas sistemaDeReservas;
 	private JTabbedPane reservarVehiculo;
 	private JTabbedPane modDatosReserva;
@@ -49,15 +55,33 @@ public class InterfazCliente extends JFrame {
 	private JPanel panelInfovehiculo;
 	private JComboBox<String> carros ;
 	private JComboBox<String> seguros;
+	private JComboBox<String> vehiculosParaReservar;
+	private JComboBox<String> motos;
+	private JComboBox<String> atvs;
+	private JComboBox<String> bicisElectricas;
 	private JList<String> reservas;
 	private JButton reservarVehículo;
 	private JButton modificarReserva;
 	private String idReservaSeleccionada;
 	private String carroSeleccionado=null;
 	private String seguroSeleccionado=null;
+    
+	private String idMoto;
+	private String idAtv;
+	private String idBici;
+	
 	private InfoReserva reservaSeleccionada;
 	private JList<String> consultaCarroas;
+	private Carro carroSeleccionado2=null;
+	private Moto motoSeleccionada;
+	private Atv atvSeleccionada;
+	private BicicletaElectrica biciSeleccionada;
 	
+	private  JRadioButton carro;
+	private  JRadioButton moto;
+	private  JRadioButton atv;
+	private  JRadioButton bibiElec;
+
 	
 	private JPanel panelModificarReserva;
 	
@@ -104,13 +128,16 @@ public class InterfazCliente extends JFrame {
 	private JTextField txtUbicacion;
 	
 	private JTextField txtprecio;
+	private String tipoVehiculo;
+	
 	 
 	
 	
 	
-	public InterfazCliente(ArrayList<String> reservasp,ArrayList<Seguro> segurosp,ArrayList<Carro> carrosDisponibles, SistemaDeReservas sistemaDeReservas) {
-		this.sistemaDeReservas = sistemaDeReservas;
-		setReservas(reservasp);
+	public InterfazCliente(ArrayList<String> reservasp,ArrayList<Seguro> segurosp,
+			ArrayList<Carro> carrosDisponibles, SistemaDeReservas sistemaDeReservasp,
+			ArrayList<Moto> motosp,ArrayList<BicicletaElectrica> biciElectricap,ArrayList<Atv> atvp) {
+		this.sistemaDeReservas = sistemaDeReservasp;
 		int tamX =850;
 		int tamY=550;
 		setTitle("CLIENTE");
@@ -126,15 +153,28 @@ public class InterfazCliente extends JFrame {
 		
 		panelReserNorth=new JPanel();
 		
-		panelReserNorth.setLayout(new GridLayout(3,1));
+		panelReserNorth.setLayout(new GridLayout(2,4));
+		panelReserNorth.add(new JLabel());
 		
-		JLabel cliente=new JLabel("CLIENTE");
-		cliente.setHorizontalAlignment(JLabel.CENTER);
-		panelReserNorth.add(cliente);
-		
-		JLabel reserva=new JLabel("Reservar un vehículo");
+		JLabel reserva=new JLabel("Elige un tipo de vehículo");
 		reserva.setHorizontalAlignment(JLabel.CENTER);
 		panelReserNorth.add(reserva);
+		panelReserNorth.add(new JLabel());
+		panelReserNorth.add(new JLabel());
+		panelReserNorth.add(new JLabel());
+		
+		carro= new JRadioButton("Carro");
+		carro.addActionListener(InterfazCliente.this);
+		panelReserNorth.add(carro);
+		moto= new JRadioButton("Moto");
+		moto.addActionListener(this);
+		panelReserNorth.add(moto);
+		atv= new JRadioButton("Atv");
+		atv.addActionListener(this);
+		panelReserNorth.add(atv);
+		bibiElec= new JRadioButton("Bicicleta eléctrica");
+		bibiElec.addActionListener(this);
+		panelReserNorth.add(bibiElec);
 		panelReserNorth.add(new Label());
 		
 		panelReservarVehiculo.add(panelReserNorth,BorderLayout.NORTH);
@@ -147,16 +187,16 @@ public class InterfazCliente extends JFrame {
 		panelReserCentroCentro.setLayout(new GridLayout(7,2));
 
 		
-		JLabel lbFechaSalida = new JLabel("Fecha a reclamar el carro:");
+		JLabel lbFechaSalida = new JLabel("Fecha a reclamar el vehículo:");
 		txtFechaSalida = new JTextField(4);
 	    
-		JLabel lbSedeSalida = new JLabel("Sede donde desea recoger el carro:");
+		JLabel lbSedeSalida = new JLabel("Sede donde desea recoger el vehículo:");
 		txtSedeSalida = new JTextField(4);
 		
-		JLabel lbFechaDeVuelta = new JLabel("Fecha a entregar el carro: ");
+		JLabel lbFechaDeVuelta = new JLabel("Fecha a entregar el vehículo: ");
 		txtFechaDeVuelta = new JTextField(4);
 		
-		JLabel lbSedeDeVuelta = new JLabel("Sede donde desea entregar el carro: ");
+		JLabel lbSedeDeVuelta = new JLabel("Sede donde desea entregar el vehículo: ");
 		txtSedeDeVuelta = new JTextField(4);
 		
 		panelReserCentroCentro.add(new JLabel("Formato de fechas y horas (YYYY.DD.MM.HH.mm) "));
@@ -257,16 +297,18 @@ public class InterfazCliente extends JFrame {
 		
 		
 		panelReserEste=new JPanel();
-		panelReserEste.setLayout(new GridLayout(8,1));
-//		JLabel precio30= new JLabel()"Precio"
-//		panelReserEste.add(txtPrecio30);
+		panelReserEste.setLayout(new GridLayout(14,1));
 		panelReserEste.add(new JLabel("        Tus reservas        "));
+		setReservas(reservasp);
         reservas.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                 	idReservaSeleccionada = reservas.getSelectedValue();   
-                	//System.out.println(idReservaSeleccionada);
+                	System.out.println("reserva selec id"+idReservaSeleccionada);
+                	if(idReservaSeleccionada.equals("No tienes reservas")) {
+                		//no hacer nada
+                	}else {
                     reservaSeleccionada= sistemaDeReservas.encontrarReservaDelCliente(idReservaSeleccionada);
                 	txtFechaSalida.setText(reservaSeleccionada.generarFechaAenseñarI());
 
@@ -275,6 +317,7 @@ public class InterfazCliente extends JFrame {
                 	txtFechaDeVuelta.setText(reservaSeleccionada.generarFechaAenseñarE());
                 	
                 	txtSedeDeVuelta.setText(reservaSeleccionada.getSedeDevuelta());
+                	}
                 	
                 }}});
 		JScrollPane scrollPane = new JScrollPane(reservas);
@@ -296,7 +339,7 @@ public class InterfazCliente extends JFrame {
                 	reservaSeleccionada.setFechaEntrega(txtFechaDeVuelta.getText());
                 	reservaSeleccionada.setSedeDevuelta(txtSedeDeVuelta.getText());
                 	reservaSeleccionada.setSeguro(sistemaDeReservas.encontrarSeguroDelCliente(seguroSeleccionado));
-                	reservaSeleccionada.setCarroEnReserva(carroSeleccionado);
+                	reservaSeleccionada.setVehiculoEnReserva(carroSeleccionado);
 //                	sistemaDeReservas.eliminarDocReser();
 //                	sistemaDeReservas.actualizarReservas(reservaSeleccionada);
 //                	try {
@@ -311,6 +354,62 @@ public class InterfazCliente extends JFrame {
             }});
 		
 		panelReserEste.add(modificarReserva);
+		panelReserEste.add(new JLabel("       Motos disponibles       "));
+		setMotos(motosp);
+		motos.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	JComboBox motoss = (JComboBox) e.getSource();
+            	String moto= (String)motoss.getSelectedItem();
+                for (int i = 0; i < motos.getItemCount(); i++) {
+                	String elemento = (String) motos.getItemAt(i);
+                    if(moto.equals(elemento)) {
+                    	motoSeleccionada= sistemaDeReservas.encontrarMoto(moto);
+                    	idMoto=moto;
+                    	System.out.println("moto:"+motoSeleccionada.getPlaca());
+                    }
+                }        
+            }});
+		panelReserEste.add(motos);
+		
+		panelReserEste.add(new JLabel("       Atv disponibles       "));
+		setAtvs(atvp);
+		atvs.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	JComboBox atvss = (JComboBox) e.getSource();
+            	String atv= (String)atvss.getSelectedItem();
+                for (int i = 0; i < atvs.getItemCount(); i++) {
+                	String elemento = (String) atvs.getItemAt(i);
+                    if(atv.equals(elemento)) {
+                    	atvSeleccionada= sistemaDeReservas.encontrarAtv(atv);
+                    	idAtv=atv;
+                    	System.out.println("idAtv:"+atvSeleccionada.getPlaca());
+                    }
+                }        
+            }});
+		panelReserEste.add(atvs);
+		
+		panelReserEste.add(new JLabel("       Bicicletas eléctricas disponibles       "));
+		setBicisElectricas(biciElectricap);
+		bicisElectricas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	JComboBox bicis = (JComboBox) e.getSource();
+            	String bici= (String)bicis.getSelectedItem();
+                for (int i = 0; i < bicisElectricas.getItemCount(); i++) {
+                	String elemento = (String) bicisElectricas.getItemAt(i);
+                    if(bici.equals(elemento)) {
+                    	biciSeleccionada= sistemaDeReservas.encontrarBiciElec(bici);
+                    	idBici=bici;
+                    	System.out.println("bici:"+biciSeleccionada.getPlaca());
+                    }
+                }        
+            }});
+		panelReserEste.add(bicisElectricas);
+//		JLabel precio30= new JLabel()"Precio"
+//		panelReserEste.add(txtPrecio30);
+		
 		panelReserEste.add(new JLabel("        Carros disponibles:        "));
 		setCarros(carrosDisponibles);
 		carros.addActionListener(new ActionListener() {
@@ -321,6 +420,7 @@ public class InterfazCliente extends JFrame {
                 for (int i = 0; i < carros.getItemCount(); i++) {
                 	String elemento = (String) carros.getItemAt(i);
                     if(placa.equals(elemento)) {
+                    	carroSeleccionado2= sistemaDeReservas.encontrarCarro(placa);
                     	carroSeleccionado=placa;
                     }
                 }
@@ -333,67 +433,117 @@ public class InterfazCliente extends JFrame {
             public void actionPerformed(ActionEvent e) {
            if(txtFechaSalida.getText().equals("") || txtSedeSalida.getText().equals("") ||
         		    txtFechaDeVuelta.getText().equals("") || txtSedeDeVuelta.getText().equals("") || txtNumTarjeta.getText().equals("") || txtFechaExpiracion.getText().equals("") || txtCvv.getText().equals("") ||txtNumlicencia.getText().equals("") || txtPais.getText().equals("") ||
-        		    txtFechaVencimiento.getText().equals(""))  {
+        		    txtFechaVencimiento.getText().equals("") || tipoVehiculo==null)  {
         	   JOptionPane.showMessageDialog(InterfazCliente.this, "Llena tosdos los campos","Campos vacios", JOptionPane.WARNING_MESSAGE);
            }else if(seguroSeleccionado==null){
              		JOptionPane.showMessageDialog(InterfazCliente.this, "Selecciona un seguro!!", "Seguro no seleccionada", JOptionPane.WARNING_MESSAGE);
-            	} else if(carroSeleccionado==null) {
-             		JOptionPane.showMessageDialog(InterfazCliente.this, "Selecciona un carro!!", "Carro no seleccionada", JOptionPane.WARNING_MESSAGE);
-            	}else if (idReservaSeleccionada.equals("No tienes reservas")){
-            		JOptionPane.showMessageDialog(InterfazCliente.this, "No tienes reservas, que esperas para hacer la tuya!!", "Sin reservas", JOptionPane.WARNING_MESSAGE);
+            	} else if(carroSeleccionado==null && atvSeleccionada==null && biciSeleccionada==null && motoSeleccionada== null) {
+             		JOptionPane.showMessageDialog(InterfazCliente.this, "Selecciona un vehículo!!", "Vehículo no seleccionado", JOptionPane.WARNING_MESSAGE);
+//            	}else if (idReservaSeleccionada.equals("No tienes reservas")){
+//            		JOptionPane.showMessageDialog(InterfazCliente.this, "No tienes reservas, que esperas para hacer la tuya!!", "Sin reservas", JOptionPane.WARNING_MESSAGE);
             	}else {
-            		txtNumlicencia.getText();
-            		String[] partesI=txtFechaSalida.getText().split("\\.");
-            		String[] partesFin=txtFechaDeVuelta.getText().split("\\.");
-            		System.out.println("0"+partesI[0]);
-            		System.out.println("1"+partesI[1]);
-            		System.out.println("2"+partesI[2]);
-                    LocalDateTime fechaInicio = LocalDateTime.of(Integer.parseInt(partesI[0]),
-                    		Integer.parseInt(partesI[1]),
-                    		Integer.parseInt(partesI[2]), 
-                    		Integer.parseInt(partesI[3]),
-                    		Integer.parseInt(partesI[4])); 
-                    LocalDateTime fechaFin = LocalDateTime.of(Integer.parseInt(partesFin[0]),
-                    		Integer.parseInt(partesFin[1]),
-                    		Integer.parseInt(partesFin[2]), 
-                    		Integer.parseInt(partesFin[3]),
-                    		Integer.parseInt(partesFin[4]));
-                    
-                    double costoTotal=sistemaDeReservas.calcularCostoReserva(fechaInicio, fechaFin);
-                    double costo30 = (costoTotal*0.3);
-                    ArrayList<Conductor> conductores=new ArrayList<Conductor>();
-                    System.out.println("costo" +sistemaDeReservas.calcularCostoReserva(fechaInicio, fechaFin)); 
-                	Conductor conductor= new Conductor(new Licencia(txtNumlicencia.getText(),
-                			                            txtPais.getText(),
-                	sistemaDeReservas.generarFecha(txtFechaVencimiento.getText().split("\\.")) ));
-                	Date FechaInicio= sistemaDeReservas.generarFecha(txtFechaSalida.getText().split("\\."));
-                	Date FechaDeVuelta=sistemaDeReservas.generarFecha(txtFechaDeVuelta.getText().split("\\."));
-                	conductores.add(conductor);
-                	String temñporada=sistemaDeReservas.identificarTemporada();
-                	InfoReserva nuevaReserva=new InfoReserva(sistemaDeReservas.generarId(), costo30,costoTotal,                        conductores,"Tarjeta",sistemaDeReservas.encontrarSeguroDelCliente(seguroSeleccionado),
-                			temñporada,txtSedeSalida.getText(),
-                	txtSedeDeVuelta.getText(),FechaInicio , FechaDeVuelta, sistemaDeReservas.getClienteEnCurso(), carroSeleccionado);
-                	
-                	try {
-    					sistemaDeReservas.crearReserva(nuevaReserva);
-    				} catch (IOException e1) {
-    					// TODO Auto-generated catch block
-    					e1.printStackTrace();
-    				}
-                	
+            		
+            		if((tipoVehiculo.equals("Moto")&& motoSeleccionada==null) || 
+            				(tipoVehiculo.equals("Carro")&& carroSeleccionado2==null)||
+            				(tipoVehiculo.equals("Atv")&& atvSeleccionada==null)||
+            				(tipoVehiculo.equals("BicicletaElectrica")&& biciSeleccionada==null)
+            				){
+                		JOptionPane.showMessageDialog(InterfazCliente.this, "Selecciona vehículo correspondiente", "no corresponde el vehiculo", JOptionPane.WARNING_MESSAGE);
+            		}else {
+        				String[] partesI=txtFechaSalida.getText().split("\\.");
+                		String[] partesFin=txtFechaDeVuelta.getText().split("\\.");
+                		System.out.println("0"+partesI[0]);
+                		System.out.println("1"+partesI[1]);
+                		System.out.println("2"+partesI[2]);
+                        LocalDateTime fechaInicio = LocalDateTime.of(Integer.parseInt(partesI[0]),
+                        		Integer.parseInt(partesI[1]),
+                        		Integer.parseInt(partesI[2]), 
+                        		Integer.parseInt(partesI[3]),
+                        		Integer.parseInt(partesI[4])); 
+                        LocalDateTime fechaFin = LocalDateTime.of(Integer.parseInt(partesFin[0]),
+                        		Integer.parseInt(partesFin[1]),
+                        		Integer.parseInt(partesFin[2]), 
+                        		Integer.parseInt(partesFin[3]),
+                        		Integer.parseInt(partesFin[4]));
+                        Vehiculo vehiculoSeleccionado=null;
+                        if(tipoVehiculo.equals("Carro")) {
+                        	vehiculoSeleccionado=carroSeleccionado2;
+                        }else if(tipoVehiculo.equals("Moto")) {
+                        	vehiculoSeleccionado=motoSeleccionada;
+                        }else if(tipoVehiculo.equals("Atv")) {
+                        	vehiculoSeleccionado=atvSeleccionada;
+                        }else if(tipoVehiculo.equals("BicicletaElectrica")) {
+                        	vehiculoSeleccionado=biciSeleccionada;
+                        }
+                        	
+            			if(estaEnRango(fechaInicio,fechaFin,vehiculoSeleccionado.getHistorialInformes())) {
+                    		JOptionPane.showMessageDialog(InterfazCliente.this, "Selecciona otra fecha!!", "Fecha no disponible", JOptionPane.WARNING_MESSAGE);
+            			}else {
+                            
+                      	txtNumlicencia.getText();
+            			ArrayList<Date> reservas=new ArrayList();
+                        reservas.add(generarFecha(partesI));
+                        reservas.add(generarFecha(partesFin));
+                        double costoTotal=sistemaDeReservas.calcularCostoReserva(fechaInicio, fechaFin);
+                        double costo30 = (costoTotal*0.3);
+                        ArrayList<Conductor> conductores=new ArrayList<Conductor>();
+                        System.out.println("costo" +sistemaDeReservas.calcularCostoReserva(fechaInicio, fechaFin)); 
+                      	Conductor conductor= new Conductor(new Licencia(txtNumlicencia.getText(),
+                      			                            txtPais.getText(),
+                      	sistemaDeReservas.generarFechaSinHora(txtFechaVencimiento.getText().split("\\.")) ));
+                      	LocalDateTime FechaInicio= sistemaDeReservas.generarFecha(txtFechaSalida.getText().split("\\."));
+                      	LocalDateTime FechaDeVuelta=sistemaDeReservas.generarFecha(txtFechaDeVuelta.getText().split("\\."));
+                      	conductores.add(conductor);
+                      	String temñporada=sistemaDeReservas.identificarTemporada();
+                      	InfoReserva nuevaReserva=null;
+                   		if(tipoVehiculo.equals("Carro")) {
+                          	 nuevaReserva=new InfoReserva(sistemaDeReservas.generarId(), costo30,costoTotal,conductores,"Tarjeta",sistemaDeReservas.encontrarSeguroDelCliente(seguroSeleccionado),
+                          			temñporada,txtSedeSalida.getText(),txtSedeDeVuelta.getText(),FechaInicio , FechaDeVuelta,
+                          			sistemaDeReservas.getClienteEnCurso(), carroSeleccionado,"Carro");
+                   			
+                		} else if(tipoVehiculo.equals("Moto")) {
+
+                			 nuevaReserva=new InfoReserva(sistemaDeReservas.generarId(), costo30,costoTotal,conductores,"Tarjeta",sistemaDeReservas.encontrarSeguroDelCliente(seguroSeleccionado),
+                          			temñporada,txtSedeSalida.getText(),txtSedeDeVuelta.getText(),FechaInicio , FechaDeVuelta,
+                          			sistemaDeReservas.getClienteEnCurso(), motoSeleccionada.getPlaca(),"Moto");
+                   			
+                   		}else if(tipoVehiculo.equals("Atv")) {
+                			 nuevaReserva=new InfoReserva(sistemaDeReservas.generarId(), costo30,costoTotal,conductores,"Tarjeta",sistemaDeReservas.encontrarSeguroDelCliente(seguroSeleccionado),
+                          			temñporada,txtSedeSalida.getText(),txtSedeDeVuelta.getText(),FechaInicio , FechaDeVuelta,
+                          			sistemaDeReservas.getClienteEnCurso(), atvSeleccionada.getPlaca(),"Atv");
+                       			 
+                       	}else if(tipoVehiculo.equals("BicicletaElectrica")){
+                			 nuevaReserva=new InfoReserva(sistemaDeReservas.generarId(), costo30,costoTotal,conductores,"Tarjeta",sistemaDeReservas.encontrarSeguroDelCliente(seguroSeleccionado),
+                          			temñporada,txtSedeSalida.getText(),txtSedeDeVuelta.getText(),FechaInicio , FechaDeVuelta,
+                          			sistemaDeReservas.getClienteEnCurso(), biciSeleccionada.getPlaca(),"BicicletaElectrica");
+
+            		          }
+            	
+                    	try {
+        					sistemaDeReservas.crearReserva(nuevaReserva);
+        					sistemaDeReservas.agregarReservas(nuevaReserva);
+        				} catch (IOException e1) {
+        					// TODO Auto-generated catch block
+        					e1.printStackTrace();
+        				}
+                  	
                    txtFechaSalida.setText(""); 
                    txtSedeSalida.setText("");
-         		   txtFechaDeVuelta.setText("");
-         		   txtSedeDeVuelta.setText("");
-         		   txtNumTarjeta.setText("");
-         		   txtFechaExpiracion.setText("");
-         		   txtCvv.setText("");
-         		   txtNumlicencia.setText(""); 
-         		   txtPais.setText("") ;
-         		   txtFechaVencimiento.setText("");
-         		  JOptionPane.showMessageDialog(InterfazCliente.this, "precio 30%:"+costo30+"\n precio inicial total"+costoTotal, "Reserva registrada!!", JOptionPane.WARNING_MESSAGE);
+           		   txtFechaDeVuelta.setText("");
+           		   txtSedeDeVuelta.setText("");
+           		   txtNumTarjeta.setText("");
+           		   txtFechaExpiracion.setText("");
+           		   txtCvv.setText("");
+           		   txtNumlicencia.setText(""); 
+           		   txtPais.setText("") ;
+           		   txtFechaVencimiento.setText("");
+           		   setReservas(sistemaDeReservas.getIdsReservasDelCliente());
+           		   
+           		  JOptionPane.showMessageDialog(InterfazCliente.this, "precio 30%: "+costo30+"\n precio inicial total "+costoTotal, "Reserva registrada!!", JOptionPane.WARNING_MESSAGE);
+            			
+            			}
+            		}
             	}
-           
             	
             }});
 		panelReserEste.add(reservarVehículo);
@@ -416,7 +566,7 @@ public class InterfazCliente extends JFrame {
         ImageIcon resizedInfo = new ImageIcon(infoNu);
 
 		reservarVehiculo.add("Reservar vehículo",panelReservarVehiculo);
-		reservarVehiculo.add("Consulta vehículo",panelInfovehiculo);
+		reservarVehiculo.add("Consulta Carros",panelInfovehiculo);
 
 		reservarVehiculo.setIconAt(0, resizedReser);
 		reservarVehiculo.setIconAt(1, resizedInfo);
@@ -520,8 +670,7 @@ public class InterfazCliente extends JFrame {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                	String placaCarro = consultaCarroas.getSelectedValue();   
-                	//System.out.println(idReservaSeleccionada);
+                	String placaCarro = consultaCarroas.getSelectedValue();
                     Carro carroSeleccionado= sistemaDeReservas.encontrarCarro(placaCarro);
                     txtModelo.setText(carroSeleccionado.getModelo());
                     txtEstado.setText(carroSeleccionado.getEstado());
@@ -545,9 +694,60 @@ public class InterfazCliente extends JFrame {
 		
 	}
 	
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == carro) {
+			carro.setSelected(true);
+			moto.setSelected(false);
+			atv.setSelected(false);
+			bibiElec.setSelected(false);
+			tipoVehiculo="Carro";
+			System.out.println("carro");
+		}else if (e.getSource() == moto) {
+			carro.setSelected(false);
+			moto.setSelected(true);
+			atv.setSelected(false);
+			bibiElec.setSelected(false);
+			tipoVehiculo="Moto";
+			System.out.println("moto");
+		}else if (e.getSource() == atv) {
+			carro.setSelected(false);
+			moto.setSelected(false);
+			atv.setSelected(true);
+			bibiElec.setSelected(false);
+			tipoVehiculo="Atv";
+			System.out.println("atv");
+		}else if (e.getSource() == bibiElec) {
+			carro.setSelected(false);
+			moto.setSelected(false);
+			atv.setSelected(false);
+			bibiElec.setSelected(true);
+			tipoVehiculo="BicicletaElectrica";
+			System.out.println("bibiElec");
+		}
+		}
 	
+	public Date generarFecha(String[] partesFecha){
+		int ano = Integer.parseInt(partesFecha[0]);
+		int mes = Integer.parseInt(partesFecha[1]);
+		int dia = Integer.parseInt(partesFecha[2]);
+		int hora = Integer.parseInt(partesFecha[3]);
+		int minuto = Integer.parseInt(partesFecha[4]);;
+		Date fecha = new Date(ano, mes, dia,hora,minuto);
+		return fecha;
+	}
 	
-	
+    public boolean estaEnRango(LocalDateTime fechaInicio, LocalDateTime fechaFin, ArrayList<LocalDateTime> reservas) {
+    	boolean enRango=false;
+    	for(int i=0;i<reservas.size();i++) {
+    		if((reservas.get(i).isAfter(fechaInicio) || reservas.get(i).isEqual(fechaInicio)) &&
+    			(reservas.get(i).isBefore(fechaFin) || reservas.get(i).isEqual(fechaFin)))
+    		{
+    			enRango=true;
+    		}
+    	}
+    	return enRango;
+    }
+
 	private void setConsultaCarros(ArrayList<Carro> carrosDisponibles) {
         DefaultListModel<String> modeloLista = new DefaultListModel<>();
 
@@ -566,6 +766,28 @@ public class InterfazCliente extends JFrame {
 		
 	}
 
+	private void setMotos(ArrayList<Moto> motosDisponibles) {
+		this.motos=new JComboBox<String>();
+		for(int i=0;i<motosDisponibles.size();i++) {
+			motos.addItem(motosDisponibles.get(i).getPlaca());
+		}
+	}
+
+	private void setAtvs(ArrayList<Atv> atvsDisponibles) {
+		this.atvs=new JComboBox<String>();
+		for(int i=0;i<atvsDisponibles.size();i++) {
+			atvs.addItem(atvsDisponibles.get(i).getPlaca());
+		}
+		
+	}
+	
+	private void setBicisElectricas(ArrayList<BicicletaElectrica> bicisDisponibles) {
+		this.bicisElectricas=new JComboBox<String>();
+		for(int i=0;i<bicisDisponibles.size();i++) {
+			bicisElectricas.addItem(bicisDisponibles.get(i).getPlaca());
+		}
+		
+	}
 
 	public void setSeguros( ArrayList<Seguro> seguros) {
 		this.seguros=new JComboBox<String>();
@@ -574,42 +796,51 @@ public class InterfazCliente extends JFrame {
 		}
 	}
 	
-    public void setReservas(ArrayList<String> reservas) {
+//    public void setReservas(ArrayList<String> reservas) {
+//        DefaultListModel<String> modeloLista = new DefaultListModel<>();
+////        if(reservas ==null) {
+////        	modeloLista.addElement("No tienes reservas");
+////        }else {
+//        for (int i = 0; i < reservas.size(); i++) {
+//			System.out.println("reservas interfaz"+reservas.get(i));
+//            modeloLista.addElement(reservas.get(i));
+//        }
+//        
+//
+//        this.reservas = new JList<>(modeloLista);
+//    }
+    
+	public void setReservas(ArrayList<String> reservasp) {
         DefaultListModel<String> modeloLista = new DefaultListModel<>();
 
-        for (int i = 0; i < reservas.size(); i++) {
-            modeloLista.addElement(reservas.get(i));
+        for (int i = 0; i < reservasp.size(); i++) {
+            modeloLista.addElement(reservasp.get(i));
         }
 
         this.reservas = new JList<>(modeloLista);
-    }
-    
+        
+        reservas.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                	idReservaSeleccionada = reservas.getSelectedValue();   
+                	System.out.println("reserva selec id"+idReservaSeleccionada);
+                	if(idReservaSeleccionada.equals("No tienes reservas")) {
+                		//no hacer nada
+                	}else {
+                    reservaSeleccionada= sistemaDeReservas.encontrarReservaDelCliente(idReservaSeleccionada);
+                	txtFechaSalida.setText(reservaSeleccionada.generarFechaAenseñarI());
 
-	
-	public static void main(String[] args) {
-		@SuppressWarnings("deprecation")
-		Date fecha = new Date(2023 - 1900, 11 - 1, 12);
-
-        // Define el formato que deseas
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-
-        // Convierte la fecha a una cadena de texto en el formato deseado
-        String fechaComoTexto = sdf.format(fecha);
-
-        System.out.println("Fecha como texto: " + fechaComoTexto);
-		sistemaDeReservas= new SistemaDeReservas();
-		sistemaDeReservas.setClienteLogeado("g.chaparr");
-		try {
-			sistemaDeReservas.cargarReservas();
-			sistemaDeReservas.cargarSeguros();
-			sistemaDeReservas.cargarCarros();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		InterfazCliente interfazCli =new InterfazCliente(sistemaDeReservas.getIdsReservasDelCliente(),sistemaDeReservas.getSeguros(), sistemaDeReservas.carrosDisponibles());
-		interfazCli.setLocationRelativeTo(null);
-		interfazCli.setVisible(true);		
+                	txtSedeSalida.setText(reservaSeleccionada.getSedeEntrega());
+                	
+                	txtFechaDeVuelta.setText(reservaSeleccionada.generarFechaAenseñarE());
+                	
+                	txtSedeDeVuelta.setText(reservaSeleccionada.getSedeDevuelta());
+                	}
+                	
+                }}});
 		
 	}
+    
+
 }

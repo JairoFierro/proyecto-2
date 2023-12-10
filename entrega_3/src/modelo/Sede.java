@@ -36,5 +36,15 @@ public class Sede {
     public void setHorario(String horario) {
         this.horario = horario;
     }
+    
+    public String generarTexto(){
+    	String texto="";
+    	texto+= getNombre()+"{";
+    	texto+= getUbicacion()+"{";
+    	texto+= getHorario();
+    	
+    	return texto;
+    	
+    }
 }
 

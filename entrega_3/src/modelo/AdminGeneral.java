@@ -6,10 +6,10 @@ import java.util.List;
 import modelo.Carro;
 
 
-public class Admin_General extends usuario{
+public class AdminGeneral extends usuario{
 	;
 	
-	public Admin_General(String log, String pword) {
+	public AdminGeneral(String log, String pword) {
 		super(log,pword);
 		
 		
@@ -18,17 +18,14 @@ public class Admin_General extends usuario{
 	public void nuevo_car(String placa, String marca, String modelo, String color, String transmision,
             String estado, String categoria, int ubicacion, String Alquilado,String Disponibilidad, List<Carro> lista) {
 		
-		Carro car = new Carro(placa,marca, modelo, color,  transmision,
-                estado, categoria, ubicacion, Alquilado,Disponibilidad);
-		lista.add(car);
+	
 	}
 	public void carro_fuera(String placa, List<Carro> lista) {
 		int a = 0;
-<<<<<<< HEAD
+
 		Carro instancias = lista.get(a);
-=======
 		Car instancias = lista.get(a);
->>>>>>> refs/remotes/origin/main
+
 		String placa_instancia = instancias.getPlaca();
 		if(placa != placa_instancia) {
 			a += 1;
@@ -38,5 +35,14 @@ public class Admin_General extends usuario{
 			lista.remove(a);
 		}
 	}
+	
+    public String generarTexto(){
+    	String texto="";
+    	texto+= getLogin()+"{";
+    	texto+= getPassword();
+    	
+    	return texto;
+    	
+    }
 
 }

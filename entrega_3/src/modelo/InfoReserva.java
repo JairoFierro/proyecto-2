@@ -1,6 +1,7 @@
 package modelo;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.io.FileNotFoundException;
@@ -17,7 +18,8 @@ public class InfoReserva {
 	
 	private String id;
 	private Cliente cliente;
-	private String carroEnReserva;
+	private String vehiculoEnReserva;
+	private String tipoVehiculo;
 	private double precio30;
 	private double precioServicioCompleto;
 	private ArrayList<Conductor>  conductor; 
@@ -27,18 +29,18 @@ public class InfoReserva {
 	private String sedeEntrega;
 	private String sedeDevuelta;
 	private Boolean enCurso; 
-	private Date fechaInicio;
-	private Date fechaEntrega;
+	private LocalDateTime fechaInicio;
+	private LocalDateTime fechaEntrega;
 	
 	public InfoReserva(String idp,double precio30p,double precioServicioCompletop,ArrayList<Conductor> coductorp,String medioDePagop,Seguro segurop, 
-			String Temporadap,String sedeEntregap,String sedeDeVueltap, Date fechaIniciop,Date fechaEntregap,Cliente clientep,String carroEnReservap)
+			String Temporadap,String sedeEntregap,String sedeDeVueltap, LocalDateTime fechaIniciop,LocalDateTime fechaEntregap,Cliente clientep,String vehiculoEnReservap,String tipoVehiculop)
 	
 	{
 		id=idp;
 		cliente=clientep;
-		carroEnReserva=carroEnReservap;
+		vehiculoEnReserva=vehiculoEnReservap;
 		cliente=clientep;
-		carroEnReserva=carroEnReservap;
+		tipoVehiculo=tipoVehiculop;
 		precio30= precio30p;
 		precioServicioCompleto=precioServicioCompletop;
 		conductor= coductorp;
@@ -61,14 +63,26 @@ public void setCliente(Cliente cliente) {
 	this.cliente = cliente;
 }
 
-
-
-public String getCarroEnReserva(){ 
-	return carroEnReserva;
+public Cliente getCliente() {
+	return cliente;
 }
 
-public void setCarroEnReserva(String carroEnReserva){ 
-	this.carroEnReserva=carroEnReserva;
+
+
+public String getVehiculoEnReserva(){ 
+	return vehiculoEnReserva;
+}
+
+public void setVehiculoEnReserva(String carroEnReserva){ 
+	this.vehiculoEnReserva=carroEnReserva;
+}
+
+public String getTipoVehiculo() {
+	return tipoVehiculo;
+}
+
+public void setTipoVehiculo(String tipoVehiculo) {
+	this.tipoVehiculo = tipoVehiculo;
 }
 	
 
@@ -166,18 +180,34 @@ public void setEnCurso() {
 }
 
 
-public Date getFechaInicio() {
+
+
+public LocalDateTime getFechaInicio() {
 	return fechaInicio;
 }
 
+
 public void setFechaInicio(String fechaInicio) {
 	String[] partes= fechaInicio.split("\\.");
-	this.fechaInicio = new Date(Integer.parseInt(partes[0]), Integer.parseInt(partes[1]),
+	
+	this.fechaInicio = LocalDateTime.of(Integer.parseInt(partes[0]),Integer.parseInt(partes[1]), 
 			Integer.parseInt(partes[2]),Integer.parseInt(partes[3]),Integer.parseInt(partes[4]));
 }
+
+//public void setFechaInicio(String fechaInicio) {
+//	String[] partes= fechaInicio.split("\\.");
+//	this.fechaInicio = new Date(Integer.parseInt(partes[0]), Integer.parseInt(partes[1]),
+//			Integer.parseInt(partes[2]),Integer.parseInt(partes[3]),Integer.parseInt(partes[4]));
+//}
+//public void setFechaEntrega(String fechaEntrega) {
+//	String[] partes= fechaEntrega.split("\\.");
+//	this.fechaEntrega = new Date(Integer.parseInt(partes[0]), Integer.parseInt(partes[1]),
+//			Integer.parseInt(partes[2]),Integer.parseInt(partes[3]),Integer.parseInt(partes[4]));
+//}
+
 public void setFechaEntrega(String fechaEntrega) {
 	String[] partes= fechaEntrega.split("\\.");
-	this.fechaEntrega = new Date(Integer.parseInt(partes[0]), Integer.parseInt(partes[1]),
+	this.fechaEntrega = LocalDateTime.of(Integer.parseInt(partes[0]),Integer.parseInt(partes[1]), 
 			Integer.parseInt(partes[2]),Integer.parseInt(partes[3]),Integer.parseInt(partes[4]));
 }
 
@@ -185,14 +215,14 @@ public void agregarConductor(Conductor conductorNuevo) {
 	conductor.add(conductorNuevo);
 }
 
-public void compararFecha(Date fecha) {
-	//private Date fecha = new Date();
-	//inforeserva.compararFecha(fecha); 
-	if (fechaInicio.compareTo(fecha)== 0) {
-		enCurso = true;
-		//carroEnReserva.nuevoAlquiler();
-	}
-}
+//public void compararFecha(Date fecha) {
+//	//private Date fecha = new Date();
+//	//inforeserva.compararFecha(fecha); 
+//	if (fechaInicio.compareTo(fecha)== 0) {
+//		enCurso = true;
+//		//carroEnReserva.nuevoAlquiler();
+//	}
+//}
 
 
 public String generarTextoReserva() {
@@ -214,41 +244,67 @@ public String generarTextoReserva() {
 	texto+= generarTextoFechaI()+"&";//9
 	texto+=generarTextoFechaE()+"&";//10
 	texto+= cliente.generarTexto()+"&";//11
-	texto+= getCarroEnReserva();//12
+	texto+= getVehiculoEnReserva()+"&";//12
+	texto+= getTipoVehiculo();
 	return texto;
 }
+//public String generarTextoFechaI() {
+//	String texto = "";
+//	int anio=fechaInicio.getYear()+1900;
+//	int mes=fechaInicio.getMonth()+1;
+//	String.valueOf(anio);
+//	String.valueOf(mes);
+//	texto += anio + "." + mes + "." + fechaInicio.getDate() + "." + fechaInicio.getHours() + "." + fechaInicio.getMinutes();
+//	return texto;
+//}
 public String generarTextoFechaI() {
-	String texto = "";
-	int anio=fechaInicio.getYear()+1900;
-	int mes=fechaInicio.getMonth()+1;
-	String.valueOf(anio);
-	String.valueOf(mes);
-	texto += anio + "." + mes + "." + fechaInicio.getDate() + "." + fechaInicio.getHours() + "." + fechaInicio.getMinutes();
+	String texto="";
+	texto+= fechaInicio.getYear()+".";
+	texto+=fechaInicio.getMonthValue()+".";
+	texto+=fechaInicio.getDayOfMonth()+".";
+	texto+=fechaInicio.getHour()+".";
+	texto+=fechaInicio.getMinute();
+		
 	return texto;
 }
 
+//public String generarTextoFechaE() {
+//	String texto = "";
+//	int anio=fechaEntrega.getYear()+1900;
+//	int mes=fechaEntrega.getMonth()+1;
+//	String.valueOf(anio);
+//	String.valueOf(mes);
+//	texto += anio + "." + mes + "." + fechaEntrega.getDate() + "." + fechaEntrega.getHours() + "." + fechaEntrega.getMinutes() + "." + fechaEntrega.getSeconds();
+//	return texto;
+//}
 public String generarTextoFechaE() {
-	String texto = "";
-	int anio=fechaEntrega.getYear()+1900;
-	int mes=fechaEntrega.getMonth()+1;
-	String.valueOf(anio);
-	String.valueOf(mes);
-	texto += anio + "." + mes + "." + fechaEntrega.getDate() + "." + fechaEntrega.getHours() + "." + fechaEntrega.getMinutes() + "." + fechaEntrega.getSeconds();
+	String texto="";
+	texto+= fechaEntrega.getYear()+".";
+	texto+=fechaEntrega.getMonthValue()+".";
+	texto+=fechaEntrega.getDayOfMonth()+".";
+	texto+=fechaEntrega.getHour()+".";
+	texto+=fechaEntrega.getMinute();
+		
 	return texto;
 }
+
+//public String generarFechaAenseñarI() {
+//	String texto = "";
+////	int anio=fechaInicio.getYear()-1900;
+////	String.valueOf(anio);
+//	texto += fechaInicio.getYear() + "." + fechaInicio.getMonth() + "." + fechaInicio.getDate() + "." + fechaInicio.getHours() + "." + fechaInicio.getMinutes();
+//	return texto;
+//}
+
 public String generarFechaAenseñarI() {
 	String texto = "";
-//	int anio=fechaInicio.getYear()-1900;
-//	String.valueOf(anio);
-	texto += fechaInicio.getYear() + "." + fechaInicio.getMonth() + "." + fechaInicio.getDate() + "." + fechaInicio.getHours() + "." + fechaInicio.getMinutes();
+	texto += fechaInicio.getYear() + "." + fechaInicio.getMonthValue() + "." + fechaInicio.getDayOfMonth() + "." + fechaInicio.getHour() + "." + fechaInicio.getMinute();
 	return texto;
 }
 
 public String generarFechaAenseñarE() {
 	String texto = "";
-//	int anio=fechaEntrega.getYear()-1900;
-//	String.valueOf(anio);
-	texto += fechaEntrega.getYear() + "." + fechaEntrega.getMonth() + "." + fechaEntrega.getDate() + "." + fechaEntrega.getHours() + "." + fechaEntrega.getMinutes();
+	texto += fechaEntrega.getYear() + "." + fechaEntrega.getMonthValue() + "." + fechaEntrega.getDayOfMonth() + "." + fechaEntrega.getHour() + "." + fechaEntrega.getMinute();
 
 	return texto;
 }

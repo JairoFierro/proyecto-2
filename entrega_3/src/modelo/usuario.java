@@ -25,27 +25,29 @@ public abstract class usuario {
 
 	public static Boolean entrar(String Login, String Password, ArrayList<usuario> lista) {
 		boolean enter = false; 
-		
-		int a = 0;
-		usuario instancias = lista.get(a);
-		String enter_instancia = instancias.getLogin();
-		if(!Login.equals(enter_instancia)) {
-			a += 1;
-			entrar(Login, Password, lista);
+		boolean centinela = true;
+		int a =0;
+		while(centinela & a<lista.size()) {
+			usuario user = lista.get(a);
+			String logUser = user.getLogin();
 			
-		}else{
-			if (Password.equals(instancias.getPassword())) {
-				enter = true;
+			if(Login.equals(logUser)) {
+				centinela=false;
+				if (Password.equals(user.getPassword())) {
+					enter = true;
+				}else {
+					enter = false;
+				}
 			}
-			else {
-				entrar(Login, Password, lista);
-			}
+			a+=1;
 		}
 		return enter;
-		
 	}
 	public void setPassword(String pword) {
 		this.Password = pword;
+	}
+	public void setLogin(String login) {
+		Login = login;
 	}
 
 }

@@ -367,7 +367,7 @@ public class InterfazAdminGeneral extends JFrame{
             		Carro carroNuevo= new Carro(txtPlaca.getText(), txtMarca.getText(),
             				txtModelo.getText(),txtColor.getText(),txtTransmision.getText(), 
             				txtEstado.getText(), txtCategoria.getText(), txtUbicacion.getText(),
-            				false,Float.parseFloat(txtprecio.getText()));
+            				Float.parseFloat(txtprecio.getText()),null);
             		try {
 						sistemaDeReservas.agregarCarro(carroNuevo);
 					} catch (IOException e1) {
@@ -444,7 +444,7 @@ public class InterfazAdminGeneral extends JFrame{
 		sedes.add("Chapinero");
 		sedes.add("Secundaria");
 		sedes.add("Principal");
-		InterfazAdminGeneral interfazAdmin =new InterfazAdminGeneral(sistemaDeReservas.totalCarros(),sedes,sistemaDeReservas.getSeguros());
+		InterfazAdminGeneral interfazAdmin =new InterfazAdminGeneral(sistemaDeReservas.totalCarros(),sedes,sistemaDeReservas.getSeguros(),sistemaDeReservas);
 		interfazAdmin.setLocationRelativeTo(null);
 		interfazAdmin.setVisible(true);		
 	}

@@ -5,16 +5,18 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Licencia {
 
     private String numero;
     private String pais;
-    private Date fechaVencimiento;
+    private LocalDate fechaVencimiento;
     private BufferedImage imagen;
 
     // Constructor
-    public Licencia(String numero, String pais, Date fechaVencimiento){
+    public Licencia(String numero, String pais, LocalDate fechaVencimiento){
         this.numero = numero;
         this.pais = pais;
         this.fechaVencimiento = fechaVencimiento;
@@ -38,11 +40,11 @@ public class Licencia {
         this.pais = pais;
     }
 
-    public Date getFechaVencimiento() {
+    public LocalDate getFechaVencimiento() {
         return fechaVencimiento;
     }
 
-    public void setFechaVencimiento(Date fechaVencimiento) {
+    public void setFechaVencimiento(LocalDate fechaVencimiento) {
         this.fechaVencimiento = fechaVencimiento;
     }
 
@@ -57,15 +59,18 @@ public class Licencia {
     	String texto="";
     	texto+= getNumero()+":";
     	texto+= getPais()+":";
-    	texto+=generarTextoFecha(getFechaVencimiento());
+    	texto+=generarTextoFecha();
 
     	return texto;
 
     }
-    public String generarTextoFecha(Date fecha) {
-    	String texto = "";
-    	//int anio=fechaVencimiento.getYear()+1900;
-    	texto += fechaVencimiento.getYear() + "." + fechaVencimiento.getMonth() + "." + fechaVencimiento.getDate() + "." + fechaVencimiento.getHours() + "." + fechaVencimiento.getMinutes() + "." + fechaVencimiento.getSeconds();
+    public String generarTextoFecha() {
+    	
+    	String texto="";
+    	texto+= fechaVencimiento.getYear()+".";
+    	texto+=fechaVencimiento.getMonthValue()+".";
+    	texto+=fechaVencimiento.getDayOfMonth();
+
     	return texto;
     }
 }

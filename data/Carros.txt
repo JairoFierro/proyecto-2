@@ -1,5 +1,2 @@
-AA1-123p0toyotap0Todoterrenop0Azulp0manualp0Sin problemasp0camionetap0Primariap0truep070000.0
-DDD-111p0Fordp0Familiarp0Verdep0manualp0Sin problemasp0Suvp0Chapinerop0truep0100000.0
-WDO-421p0Chevrolet p0suvp0negrop0automaticap0sin problemasp0compactop0Principalp0truep0150000.0
-ap0ap0ap0ap0ap0ap0ap0ap0falsep0200.0
-ap0ap0ap0ap0ap0ap0ap0ap0falsep0200.0
+GGR-675p0Fordp0Familiarp0azulp0manualp0Sin problemasp0SUVp0Sede principalp0150000.0p02023.2.7.12.12.-2023.2.15.10.10.-
+Ads-678p0Chevroletp0Familiarp0verdep0manualp0Sin problemasp0SUVp0Chapinerop0180000.0p02023.3.10.12.12.-2023.3.12.10.10.-
